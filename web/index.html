@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Emoji Receiver</title>
+    <script src="https://cdn.ably.io/lib/ably.min-1.js"></script>
+</head>
+
+<body>
+    <h1>Shake received? 👀</h1>
+    <div id="emoji-area"></div>
+
+    <script>
+        const ably = new Ably.Realtime('YOUR-ABLY-API-KEY');
+        const channel = ably.channels.get('shake-channel');
+
+        channel.subscribe('shake', (msg) => {
+            const emoji = document.createElement('div');
+            emoji.textContent = '🎉';
+            emoji.style.fontSize = '4rem';
+            document.getElementById('emoji-area').appendChild(emoji);
+        });
+    </script>
+</body>
+
+</html>
