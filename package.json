@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "ably": "^2.7.0",
+    "react-native-shake": "^6.0.0-beta.3"
+  }
+}
