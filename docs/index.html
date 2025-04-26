@@ -2,25 +2,128 @@
 <html>
 
 <head>
-    <title>Emoji Receiver</title>
+    <title>Connect passengers</title>
     <script src="https://cdn.ably.io/lib/ably.min-1.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Add AOS library -->
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 </head>
 
 <body>
-    <h1>Shake received? 👀</h1>
-    <div id="emoji-area"></div>
+    <div class="content-container">
+        <div class="purple-box">
+            <h1>Shake your phone to connect to the car!</h1>
+            <div id="image-container"></div>
+            <div class="pulse-wrapper">
+                <div class="pulse-ring delay-0"></div>
+                <div class="pulse-ring delay-1"></div>
+                <div class="pulse-ring delay-2"></div>
+                <img src="shake-icon.svg" alt="Shake Icon" class="shake-icon">
+            </div>
+            <button class="ready-button">Ready</button> <!-- Button added here -->
+
+        </div>
+    </div>
+
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800, // Animation duration
+            easing: 'ease-in-out', // Easing function
+            once: true // Ensures the animation happens once
+        });
+    </script>
 
     <script>
         const ably = new Ably.Realtime('DKaEwg.3nk-tg:bJ_kgD9qWySagyTuNq_mqJMLSaQTEb5n8E_tZ8Fytso');
         const channel = ably.channels.get('shake-channel');
 
+        let shakeHandled = false; // 🚨 New flag: initially false
+
         channel.subscribe('shake', (msg) => {
-            const emoji = document.createElement('div');
-            emoji.textContent = '🎉';
-            emoji.style.fontSize = '4rem';
-            document.getElementById('emoji-area').appendChild(emoji);
+            if (shakeHandled) return; // 🚫 If already handled, do nothing
+            shakeHandled = true; // ✅ Mark as handled
+
+            const container = document.getElementById('image-container');
+            const shakeIcon = document.querySelector('.shake-icon'); // Get the shake icon element
+
+            // Get the shake icon's position and size
+            const shakeIconRect = shakeIcon.getBoundingClientRect();
+            const shakeIconX = shakeIconRect.left + shakeIconRect.width;
+            const shakeIconY = shakeIconRect.top + shakeIconRect.height;
+            const shakeIconRadius = shakeIconRect.width;
+
+            // Function to generate random position that avoids the shake icon area
+            const getRandomPosition = () => {
+                let x, y;
+                let isValidPosition = false;
+
+                while (!isValidPosition) {
+                    const angle = Math.random() * 2 * Math.PI; // Random angle (0 to 2π)
+                    const radius = 100; // Distance from center (adjust if needed)
+
+                    // Generate random position based on angle and radius
+                    x = Math.cos(angle) * radius;
+                    y = Math.sin(angle) * radius;
+
+                    // Check if the position overlaps with the shake icon's area
+                    const distanceToShakeIcon = Math.sqrt(Math.pow(x - shakeIconX, 2) + Math.pow(y - shakeIconY, 2));
+                    if (distanceToShakeIcon > shakeIconRadius + 30) { // +30 for some buffer
+                        isValidPosition = true;
+                    }
+                }
+
+                return { x, y };
+            };
+
+            const { x, y } = getRandomPosition(); // Get valid position
+
+            // Create a container to hold both profile image and name
+            const profileContainer = document.createElement('div');
+            profileContainer.className = 'profile-container';
+            profileContainer.style.position = 'absolute';
+            profileContainer.style.left = `calc(50% + 80.4334px)`;
+            profileContainer.style.top = `calc(50% + 59.4177px)`;
+            profileContainer.style.textAlign = 'center';
+            profileContainer.style.zIndex = '3'; // Above pulses and shake icon
+            console.log(profileContainer.style.top);
+            console.log(profileContainer.style.left);
+
+
+            // Create profile image
+            const profile = document.createElement('img');
+            profile.src = 'profile1.svg';
+            profile.alt = 'Profile 1';
+            profile.className = 'profile-icon';
+            profile.style.width = '80px';
+            profile.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.2)'; // Smooth shadow for the image
+            profile.setAttribute('data-aos', 'fade-in'); // AOS fade-in effect
+
+            // Create the name label
+            const nameLabel = document.createElement('div');
+            nameLabel.className = 'profile-name';
+            nameLabel.textContent = 'Anna';
+            nameLabel.style.fontSize = '14px';
+            nameLabel.style.color = 'white';
+            nameLabel.style.marginTop = '10px'; // Fixed gap between image and name
+            nameLabel.style.textShadow = '0 2px 5px rgba(0, 0, 0, 0.3)'; // Smooth shadow for the text
+            nameLabel.setAttribute('data-aos', 'fade-in'); // AOS fade-in effect
+
+
+            // Append profile image and name label inside the container
+            profileContainer.appendChild(profile);
+            profileContainer.appendChild(nameLabel);
+
+            container.appendChild(profileContainer);
+
+            // Manually trigger AOS refresh to apply animation
+            AOS.refresh();
         });
     </script>
+
+
+
 </body>
 
 </html>
