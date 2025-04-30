@@ -39,11 +39,23 @@
         const ably = new Ably.Realtime('DKaEwg.3nk-tg:bJ_kgD9qWySagyTuNq_mqJMLSaQTEb5n8E_tZ8Fytso');
         const channel = ably.channels.get('shake-channel');
 
-        let shakeHandled = false; // 🚨 New flag: initially false
+        const uuidToProfile = {
+            '7djMbVIPnR': { name: 'Anna', img: 'profile1.svg' },
+            'nw4nDPTcDi': { name: 'Veronika', img: 'profile1.svg' },
+            // add more UUIDs and profiles as needed
+        };
+
+        const shownProfiles = new Set();
 
         channel.subscribe('shake', (msg) => {
-            if (shakeHandled) return; // 🚫 If already handled, do nothing
-            shakeHandled = true; // ✅ Mark as handled
+            const deviceId = msg.connectionId;
+            console.log(deviceId);
+
+            if (shownProfiles.has(deviceId)) return;
+            shownProfiles.add(deviceId);
+            console.log(shownProfiles);
+
+            let profileInfo = uuidToProfile[deviceId] || { name: 'Guest', img: 'profile-default.svg' };
 
             const container = document.getElementById('image-container');
             const shakeIcon = document.querySelector('.shake-icon'); // Get the shake icon element
@@ -83,12 +95,10 @@
             const profileContainer = document.createElement('div');
             profileContainer.className = 'profile-container';
             profileContainer.style.position = 'absolute';
-            profileContainer.style.left = `calc(50% + 80.4334px)`;
-            profileContainer.style.top = `calc(50% + 59.4177px)`;
+            profileContainer.style.left = `calc(50% + ${x}px)`;
+            profileContainer.style.top = `calc(50% + ${y}px)`;
             profileContainer.style.textAlign = 'center';
             profileContainer.style.zIndex = '3'; // Above pulses and shake icon
-            console.log(profileContainer.style.top);
-            console.log(profileContainer.style.left);
 
 
             // Create profile image
@@ -103,7 +113,7 @@
             // Create the name label
             const nameLabel = document.createElement('div');
             nameLabel.className = 'profile-name';
-            nameLabel.textContent = 'Anna';
+            nameLabel.textContent = uuidToProfile[deviceId].name;
             nameLabel.style.fontSize = '14px';
             nameLabel.style.color = 'white';
             nameLabel.style.marginTop = '10px'; // Fixed gap between image and name
