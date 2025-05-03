@@ -40,16 +40,18 @@
         const channel = ably.channels.get('shake-channel');
 
         const uuidToProfile = {
-            '7djMbVIPnR': { name: 'Anna', img: 'profile1.svg' },
-            'nw4nDPTcDi': { name: 'Veronika', img: 'profile1.svg' },
+            '2ee67c46-7dd7-440d-9698-beca221a9db8': { name: 'Anna', img: 'profile1.svg' },
+            'P-iqCclRBO': { name: 'Veronika', img: 'profile1.svg' },
             // add more UUIDs and profiles as needed
         };
 
         const shownProfiles = new Set();
 
         channel.subscribe('shake', (msg) => {
-            const deviceId = msg.connectionId;
-            console.log(deviceId);
+            const deviceId = msg.data.deviceId;
+            console.log("Device ID received:", msg.data.deviceId);
+
+            console.log(msg);
 
             if (shownProfiles.has(deviceId)) return;
             shownProfiles.add(deviceId);
@@ -73,7 +75,7 @@
 
                 while (!isValidPosition) {
                     const angle = Math.random() * 2 * Math.PI; // Random angle (0 to 2π)
-                    const radius = 100; // Distance from center (adjust if needed)
+                    const radius = 200; // Distance from center (adjust if needed)
 
                     // Generate random position based on angle and radius
                     x = Math.cos(angle) * radius;
