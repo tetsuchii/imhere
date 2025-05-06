@@ -76,23 +76,9 @@ export default function App() {
 
   return (
     <View style={[styles.container, { width, height }]}>
-      {/* Gradient Background */}
-      <LinearGradient
-        colors={["#77FCFE", "#533DD9", "#4871EC", "#77FCFE", "transparent"]}
-        start={{ x: 0, y: 1 }} // Start from the bottom
-        end={{ x: 0, y: 0 }} // End at the top
-        style={[styles.gradientBackground, { width, height }]}
-      />
-
       {/* Blur View */}
       <BlurView intensity={50} style={styles.blurView}>
         <Text style={styles.text}>Shake your phone to connect to the car!</Text>
-
-        {/* Add Image */}
-        <Image
-          source={require("./assets/car.png")} // Replace with your image URL
-          style={styles.image}
-        />
 
         {/* Display Device ID */}
         {/*deviceId && (
@@ -152,10 +138,11 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 60,
     fontFamily: "Inter_500Bold",
-    fontSize: 32,
+    fontSize: 24,
     color: "white",
     textAlign: "center",
     marginBottom: 100,
+    marginHorizontal: 10,
   },
   image: {
     width: 140,

@@ -46,6 +46,8 @@
         };
 
         const shownProfiles = new Set();
+        const placedPositions = []; // To track all profile positions
+
 
         channel.subscribe('shake', (msg) => {
             const deviceId = msg.data.deviceId;
@@ -68,30 +70,54 @@
             const shakeIconY = shakeIconRect.top + shakeIconRect.height;
             const shakeIconRadius = shakeIconRect.width;
 
-            // Function to generate random position that avoids the shake icon area
+
+            // Function to calculate distance between two points
+            const distance = (x1, y1, x2, y2) => Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+
+            // Updated getRandomPosition function
             const getRandomPosition = () => {
                 let x, y;
                 let isValidPosition = false;
 
-                while (!isValidPosition) {
-                    const angle = Math.random() * 2 * Math.PI; // Random angle (0 to 2π)
-                    const radius = 200; // Distance from center (adjust if needed)
+                const minY = 0;
+                const maxY = 100;
+                const radius = 150;
+                const minDistanceBetweenProfiles = 100; // Minimum distance between profiles
 
-                    // Generate random position based on angle and radius
+                let attempts = 0;
+                const maxAttempts = 100;
+
+                while (!isValidPosition && attempts < maxAttempts) {
+                    attempts++;
+
+                    const angle = Math.random() * 2 * Math.PI;
                     x = Math.cos(angle) * radius;
                     y = Math.sin(angle) * radius;
 
-                    // Check if the position overlaps with the shake icon's area
-                    const distanceToShakeIcon = Math.sqrt(Math.pow(x - shakeIconX, 2) + Math.pow(y - shakeIconY, 2));
-                    if (distanceToShakeIcon > shakeIconRadius + 30) { // +30 for some buffer
+                    const withinYRange = y >= minY && y <= maxY;
+                    const distanceToShakeIcon = distance(x, y, shakeIconX, shakeIconY);
+                    const farEnoughFromShakeIcon = distanceToShakeIcon > shakeIconRadius + 30;
+
+                    const farEnoughFromOthers = placedPositions.every(pos => {
+                        return distance(x, y, pos.x, pos.y) > minDistanceBetweenProfiles;
+                    });
+
+                    if (withinYRange && farEnoughFromShakeIcon && farEnoughFromOthers) {
                         isValidPosition = true;
                     }
+                }
+
+                if (!isValidPosition) {
+                    console.warn('Could not find valid position after max attempts');
                 }
 
                 return { x, y };
             };
 
+
             const { x, y } = getRandomPosition(); // Get valid position
+            placedPositions.push({ x, y }); // Track placed profile position
+
 
             // Create a container to hold both profile image and name
             const profileContainer = document.createElement('div');
