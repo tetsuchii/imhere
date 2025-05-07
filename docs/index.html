@@ -41,7 +41,7 @@
 
         const uuidToProfile = {
             '2ee67c46-7dd7-440d-9698-beca221a9db8': { name: 'Anna', img: 'profile1.svg' },
-            'P-iqCclRBO': { name: 'Veronika', img: 'profile1.svg' },
+            'ef7c32c6-b098-4c24-9389-d59b6a5720f1': { name: 'Veronika', img: 'profile1.svg' },
             // add more UUIDs and profiles as needed
         };
 
@@ -118,6 +118,10 @@
             const { x, y } = getRandomPosition(); // Get valid position
             placedPositions.push({ x, y }); // Track placed profile position
 
+            if (!uuidToProfile[deviceId]) {
+                console.warn("Unrecognized deviceId:", deviceId);
+            }
+
 
             // Create a container to hold both profile image and name
             const profileContainer = document.createElement('div');
@@ -141,7 +145,7 @@
             // Create the name label
             const nameLabel = document.createElement('div');
             nameLabel.className = 'profile-name';
-            nameLabel.textContent = uuidToProfile[deviceId].name;
+            nameLabel.textContent = uuidToProfile[deviceId]?.name ?? 'Veronika';
             nameLabel.style.fontSize = '14px';
             nameLabel.style.color = 'white';
             nameLabel.style.marginTop = '10px'; // Fixed gap between image and name
